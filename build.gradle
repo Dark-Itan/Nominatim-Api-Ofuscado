@@ -33,6 +33,71 @@ tasks.named('bootJar') {
     archiveFileName = 'nominatim-geolocalizacion-api.jar'
 }
 
+configurations {
+    proguard
+}
+
+dependencies {
+    proguard 'com.guardsquare:proguard-base:7.7.0'
+}
+
+task obfuscateJar {
+    group = 'build'
+    description = 'Ofusca SOLO las clases de la app'
+
+    dependsOn tasks.named('bootJar')
+
+    def workDir = layout.buildDirectory.dir('obfuscate-work').get().asFile
+    def originalJar = tasks.named('bootJar').get().archiveFile.get().asFile
+    def finalJar = layout.buildDirectory.file('libs/nominatim-geolocalizacion-api-obfuscated.jar').get().asFile
+    def classesDir = layout.buildDirectory.dir('obfuscate-work/classes').get().asFile
+    def obfuscatedClassesDir = layout.buildDirectory.dir('obfuscate-work/obfuscated-classes').get().asFile
+    def proguardClasspath = configurations.proguard.asPath
+
+    doLast {
+        delete workDir
+        mkdir workDir
+        mkdir classesDir
+        mkdir obfuscatedClassesDir
+
+        copy {
+            from zipTree(originalJar)
+            into workDir
+        }
+
+        copy {
+            from new File(workDir, 'BOOT-INF/classes')
+            into classesDir
+        }
+
+        new ProcessBuilder('java', '-cp', proguardClasspath, 'proguard.ProGuard',
+                '-injars', classesDir.absolutePath,
+                '-outjars', obfuscatedClassesDir.absolutePath,
+                '@proguard-rules.pro')
+                .inheritIO()
+                .start()
+                .waitFor()
+
+        delete new File(workDir, 'BOOT-INF/classes')
+        copy {
+            from obfuscatedClassesDir
+            into new File(workDir, 'BOOT-INF/classes')
+        }
+
+        delete finalJar
+
+        ant.zip(destfile: finalJar) {
+            zipfileset(dir: workDir) {
+                include(name: 'BOOT-INF/**')
+                include(name: 'META-INF/**')
+                include(name: 'org/**')
+            }
+        }
+
+        println "JAR ofuscado generado: ${finalJar.absolutePath}"
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }

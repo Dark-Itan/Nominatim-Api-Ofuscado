@@ -4,7 +4,7 @@ API RESTful que consume el servicio de geolocalización **Nominatim** (OpenStree
 
 **Autor:** Geovany Guadalupe Gomez Rodas
 
-**Repositorio:** https://github.com/Dark-Itan/Nominatim-Api.git
+**Repositorio:** https://github.com/Dark-Itan/Nominatim-Api-Ofuscado.git
 
 ---
 
@@ -18,6 +18,7 @@ API RESTful que consume el servicio de geolocalización **Nominatim** (OpenStree
 6. [Ejemplos de Peticiones](#6-ejemplos-de-peticiones)
 7. [Ejecución Local](#7-ejecución-local)
 8. [Estructura del Proyecto](#8-estructura-del-proyecto)
+9. [Ofuscación de Código](#9-ofuscación-de-código)
 
 ---
 
@@ -46,6 +47,7 @@ El proyecto demuestra cómo consumir una API REST de terceros con `RestClient` d
 | Nominatim | - | API pública de geolocalización |
 | Gradle | 9.7.1 | Build Tool |
 | Dotenv Java | 3.0.0 | Carga de variables de entorno |
+| ProGuard | 7.7.0 | Ofuscación de código |
 
 ---
 
@@ -122,6 +124,7 @@ nominatim-geolocalizacion-api/1.0 (251242@ids.upchiapas.edu.mx)
 | Método | Endpoint | Descripción | Códigos |
 |--------|----------|-------------|---------|
 | GET | `/` | Endpoint raíz (mensaje de bienvenida) | 200 |
+| GET | `/obf` | Endpoint ofuscado (demo) | 200 |
 | GET | `/api/v1/geolocalizacion/buscar?direccion={dir}` | Geocodificación directa | 200, 400 |
 | GET | `/api/v1/geolocalizacion/reversa?latitud={lat}&longitud={lon}` | Geocodificación inversa | 200, 400 |
 
@@ -153,7 +156,21 @@ Nominatim Geolocalizacion API - Corriendo correctamente
 
 ---
 
-### 6.2 Geocodificación Directa
+### 6.2 Endpoint Ofuscado
+
+**cURL:**
+```bash
+curl -X GET http://localhost:8080/obf
+```
+
+**Respuesta exitosa (200 OK):**
+```
+Nominatim Geolocalizacion API - Corriendo correctamente (ofuscado)
+```
+
+---
+
+### 6.3 Geocodificación Directa
 
 **cURL:**
 ```bash
@@ -164,12 +181,12 @@ curl -X GET "http://localhost:8080/api/v1/geolocalizacion/buscar?direccion=Palac
 ```json
 [
     {
-        "place_id": 311724493,
+        "place_id": 312272917,
         "display_name": "Palacio de Bellas Artes, Avenida Juárez, Centro, Roma, Ciudad de México, Cuauhtémoc, Ciudad de México, 06050, México",
         "lat": "19.4355009",
         "lon": "-99.1412585",
         "type": "theatre",
-        "importance": 0.4894896650869414
+        "importance": 0.489489665086941
     }
 ]
 ```
@@ -179,13 +196,13 @@ curl -X GET "http://localhost:8080/api/v1/geolocalizacion/buscar?direccion=Palac
 {
     "status": 400,
     "message": "Los parametros enviados no son validos. Verifica e intenta de nuevo.",
-    "timestamp": "2026-10-10T20:00:00"
+    "timestamp": "2026-10-14T20:00:00"
 }
 ```
 
 ---
 
-### 6.3 Geocodificación Inversa
+### 6.4 Geocodificación Inversa
 
 **cURL:**
 ```bash
@@ -209,43 +226,7 @@ curl -X GET "http://localhost:8080/api/v1/geolocalizacion/reversa?latitud=19.435
 {
     "status": 400,
     "message": "Los parametros enviados no son validos. Verifica e intenta de nuevo.",
-    "timestamp": "2026-10-10T20:00:00"
-}
-```
-
----
-
-### 6.4 Validación: Dirección Vacía
-
-**cURL:**
-```bash
-curl -X GET "http://localhost:8080/api/v1/geolocalizacion/buscar?direccion="
-```
-
-**Respuesta error (400 Bad Request):**
-```json
-{
-    "status": 400,
-    "message": "Los parametros enviados no son validos. Verifica e intenta de nuevo.",
-    "timestamp": "2026-10-10T20:00:00"
-}
-```
-
----
-
-### 6.5 Validación: Coordenadas Inválidas
-
-**cURL:**
-```bash
-curl -X GET "http://localhost:8080/api/v1/geolocalizacion/reversa?latitud=999&longitud=999"
-```
-
-**Respuesta error (400 Bad Request):**
-```json
-{
-    "status": 400,
-    "message": "Los parametros enviados no son validos. Verifica e intenta de nuevo.",
-    "timestamp": "2026-10-10T20:00:00"
+    "timestamp": "2026-10-14T20:00:00"
 }
 ```
 
@@ -264,8 +245,8 @@ curl -X GET "http://localhost:8080/api/v1/geolocalizacion/reversa?latitud=999&lo
 #### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/Dark-Itan/Nominatim-Api.git
-cd Nominatim-Api
+git clone https://github.com/Dark-Itan/Nominatim-Api-Ofuscado.git
+cd Nominatim-Api-Ofuscado
 ```
 
 #### 2. Configurar variables de entorno
@@ -274,7 +255,7 @@ Crear archivo `.env` en la raíz:
 
 ```properties
 NOMINATIM_URL=https://nominatim.openstreetmap.org
-NOMINATIM_USER_AGENT=nominatim-geolocalizacion-api/1.0 (tu-correo@ejemplo.com)
+NOMINATIM_USER_AGENT=nominatim-geolocalizacion-api/1.0 (251242@ids.upchiapas.edu.mx)
 SERVER_PORT=8080
 ```
 
@@ -316,10 +297,12 @@ nominatim-geolocalizacion-api/
 │   │   │               │   ├── NominatimProperties.java
 │   │   │               │   ├── RestClientConfig.java
 │   │   │               │   ├── SecurityConfig.java
-│   │   │               │   └── StartupLogger.java
+│   │   │               │   ├── StartupLogger.java
+│   │   │               │   └── StartupLoggerObfuscated.java
 │   │   │               ├── controller/
 │   │   │               │   ├── GeolocalizacionController.java
-│   │   │               │   └── HomeController.java
+│   │   │               │   ├── HomeController.java
+│   │   │               │   └── HomeControllerObfuscated.java
 │   │   │               ├── dto/
 │   │   │               │   ├── ErrorResponse.java
 │   │   │               │   └── UbicacionResponseDTO.java
@@ -339,10 +322,53 @@ nominatim-geolocalizacion-api/
 ├── build.gradle
 ├── gradlew
 ├── gradlew.bat
+├── proguard-rules.pro
 ├── run.ps1
 ├── settings.gradle
 └── README.md
 ```
+
+---
+
+## 9. Ofuscación de Código
+
+### ¿Qué es la ofuscación?
+
+La ofuscación transforma el código para dificultar su comprensión sin alterar su funcionamiento. Se usa para proteger la propiedad intelectual.
+
+### Enfoque aplicado
+
+Se aplicaron **2 enfoques**:
+
+#### Enfoque 1: Ofuscación del JAR completo (ProGuard)
+
+Se intentó ofuscar el JAR con ProGuard 7.7.0. El proceso completó pero el JAR no arranca con Spring Boot 4.x debido al `LaunchedClassLoader`.
+
+**Limitación:** ProGuard no soporta oficialmente Spring Boot 4.x. ClassFinal solo soporta hasta Spring Boot 3.2.
+
+#### Enfoque 2: Ofuscación a nivel código (manual)
+
+Se ofuscaron **2 archivos**:
+
+1. **`HomeControllerObfuscated.java`**
+    - Endpoint: `/` → `/obf`
+    - Método: `home()` → `a()`
+    - String directo → variable
+
+2. **`StartupLoggerObfuscated.java`**
+    - Variables renombradas: `logger`→`a`, `env`→`b`, `puerto`→`d`, `host`→`e`
+    - Código muerto: `int f = 100; int g = 200; int h = f + g;`
+
+### Endpoints de la ofuscación
+
+| Endpoint | Descripción | Estado |
+|----------|-------------|--------|
+| `GET /` | Endpoint original | ✅ Funciona |
+| `GET /obf` | Endpoint ofuscado | ✅ Funciona |
+
+### Conclusión
+
+La ofuscación de Spring Boot 4.x presenta limitaciones técnicas. Para producción, se recomienda Spring Boot 3.2 + ClassFinal.
 
 ---
 
